@@ -1,33 +1,24 @@
-import express from "express";
-import { MongoClient } from "mongodb";
-import dotenv from "dotenv";
-import cors from "cors";
+const express = require("express");
+const dbConnect = require("./config/dbconnect");
+const usersRoute = require("./Routes/usersRoute");
+const dotenv = require("dotenv");
+const cors = require("cors");
 
-dotenv.config(); //All Secret Key Put in .env File;
+dotenv.config();
 const app = express();
-
-//Heroku will auto assign available port
-const PORT = process.env.PORT;
-
-//cors-3rd party middleware
+// DB Connect
+dbConnect();
 app.use(cors());
+// Passing BODY Data
+app.use(express.json());
 
-//every request in the app body is parsed as JSON
-app.use(express.json()); // express.json() - inbuilt middleware
+// ROUTES
+app.use("/api/users", usersRoute);
 
-const MONGO_URL = process.env.MONGO_URL;
-
-async function createConnection() {
-    const client = new MongoClient(MONGO_URL);
-    await client.connect(); //promise
-    console.log("MongoDB Connected Successfully");
-    return client;
-}
-
-export const client = await createConnection();
-
+// SERVER
+const PORT = process.env.PORT || 9000;
 app.get("/", (req, res) => {
-    res.json({ status: "success", message: "Welcome to Enrolling CRUD Application" });
+  res.send("HELLO WELCOME");
 });
 
-app.listen(PORT || 9001, () => console.log("Server Running in PORT:", PORT));
+app.listen(PORT, () => console.log("App is Started", PORT));
